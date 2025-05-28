@@ -144,7 +144,7 @@ class GameServerStatus(commands.Cog):
 
     async def is_guild(self: commands.Context) -> bool:
         if isinstance(self.channel, discord.channel.DMChannel):
-            await self.channel.send("You cannot use this command in DMs.")
+            await self.channel.send("Вы не можете использовать эту команду в ЛС.")
             return False
         return True
 
@@ -174,7 +174,7 @@ class GameServerStatus(commands.Cog):
             cfg_lower = {key.lower(): value for (key, value) in cfg.items()}
 
             if server not in cfg_lower:
-                await ctx.send("That server does not exist!")
+                await ctx.send("Сервера не существует!")
                 return
 
             dat = cfg_lower[server]
@@ -187,7 +187,7 @@ class GameServerStatus(commands.Cog):
         servers = await self.config.guild(ctx.guild).servers()
 
         if len(servers) == 0:
-            await ctx.send("No servers are currently configured!")
+            await ctx.send("Сервера не настроены!")
             return
 
         content = "\n".join(map(lambda s: f"{s[0]}: `{s[1]['address']}`", servers.items()))
@@ -196,11 +196,11 @@ class GameServerStatus(commands.Cog):
         embed_pages = []
         for idx, page in enumerate(pages, start=1):
             embed = discord.Embed(
-                title="Server List",
+                title="Список серверов",
                 description=page,
                 colour=await ctx.embed_colour(),
             )
-            embed.set_footer(text="Page {num}/{total}".format(num=idx, total=len(pages)))
+            embed.set_footer(text="Страница {num}/{total}".format(num=idx, total=len(pages)))
             embed_pages.append(embed)
         await menus.menu(ctx, embed_pages, menus.DEFAULT_CONTROLS)
 
@@ -222,10 +222,10 @@ class GameServerStatus(commands.Cog):
             embed.description = f"**{e.message}**"
 
         except asyncio.TimeoutError:
-            embed.description = "**Server timed out**"
+            embed.description = "**Сервер не отвечает**"
 
         except:
-            embed.description = "**Unknown error occured**"
+            embed.description = "**Неизвестная ошибка**"
             log.exception("exception in status handler")
 
         else:
@@ -256,20 +256,20 @@ class GameServerStatus(commands.Cog):
             if name:
                 embed.title = name
 
-            embed.add_field(name="Players Online", value=f"{count}/{countmax}")
+            embed.add_field(name="Игроков", value=f"{count}/{countmax}")
 
             rlevel = json.get("run_level")
             if rlevel is not None:
-                status = "Unknown"
+                status = "Неизвестный"
 
                 if rlevel == SS14_RUN_LEVEL_PREGAME:
-                    status = "Pre game lobby"
+                    status = "Лобби"
                 elif rlevel == SS14_RUN_LEVEL_GAME:
-                    status = "In game"
+                    status = "В игре"
                 elif rlevel == SS14_RUN_LEVEL_POSTGAME:
-                    status = "Post game"
+                    status = "Конец"
 
-                embed.add_field(name="Status", value=status)
+                embed.add_field(name="Статус", value=status)
 
             starttimestr = json.get("round_start_time")
             if starttimestr:
@@ -277,23 +277,23 @@ class GameServerStatus(commands.Cog):
                 delta = datetime.now(timezone.utc) - starttime
                 s = []
                 if delta.days > 0:
-                    s.append(f"{delta.days} days")
+                    s.append(f"{delta.days} дней")
 
                 minutes = delta.seconds // 60
                 hours = minutes // 60
                 if hours > 0:
-                    s.append(f"{hours} hours")
+                    s.append(f"{hours} часов")
                     minutes %= 60
 
-                s.append(f"{minutes} minutes")
+                s.append(f"{minutes} минут")
 
-                embed.add_field(name="Round length", value=", ".join(s))
+                embed.add_field(name="Время", value=", ".join(s))
 
-                embed.add_field(name="Round ID", value=round_id)
+                embed.add_field(name="Раунд #", value=round_id)
 
-                embed.add_field(name="Map", value=gamemap)
+                embed.add_field(name="Карта", value=gamemap)
 
-                embed.add_field(name="Preset", value=preset)
+                embed.add_field(name="Режим", value=preset)
 
     async def do_status_ss13(self, ctx: Messageable, name: str, dat: Dict[str, str], embed: Embed) -> None:
         cfgurl = dat["address"]
@@ -325,12 +325,12 @@ class GameServerStatus(commands.Cog):
             log.exception("Got unsupported response")
             raise StatusException("Server sent unsupported response.")
 
-        embed.add_field(name="Players Online", value=players)
+        embed.add_field(name="Игроков", value=players)
         if mapname:
-            embed.add_field(name="Map", value=mapname)
+            embed.add_field(name="Карта", value=mapname)
 
         if station_time:
-            embed.add_field(name="Station Time", value=station_time)
+            embed.add_field(name="Время", value=station_time)
 
     @statuscfg.group()
     async def addserver(self, ctx: commands.Context) -> None:
@@ -376,7 +376,7 @@ class GameServerStatus(commands.Cog):
         name = name.lower()
         async with self.config.guild(ctx.guild).servers() as cur_servers:
             if name in cur_servers:
-                await ctx.send("A server with that name already exists.")
+                await ctx.send("Сервер с таким именем уже существует.")
                 return
 
             cur_servers[name] = {
@@ -399,7 +399,7 @@ class GameServerStatus(commands.Cog):
         name = name.lower()
         async with self.config.guild(ctx.guild).servers() as cur_servers:
             if name in cur_servers:
-                await ctx.send("A server with that name already exists.")
+                await ctx.send("Сервер с таким именем уже существует.")
                 return
 
             cur_servers[name] = {
@@ -423,7 +423,7 @@ class GameServerStatus(commands.Cog):
         name = name.lower()
         async with self.config.guild(ctx.guild).servers() as cur_servers:
             if name in cur_servers:
-                await ctx.send("A server with that name already exists.")
+                await ctx.send("Сервер с таким именем уже существует.")
                 return
 
             cur_servers[name] = {
@@ -447,7 +447,7 @@ class GameServerStatus(commands.Cog):
             servers = await self.config.guild(ctx.guild).servers()
 
             if name not in servers:
-                await ctx.send("That server does not exist!")
+                await ctx.send("Такого сервера не существует!")
                 return
 
             embed = await self.create_embed(ctx, name, servers[name])
@@ -657,7 +657,7 @@ async def byond_server_topic(address: str, port: int, message: bytes) -> Union[f
     await writer.drain()
 
     if await reader.read(2) != b"\x00\x83":
-        raise IOError("BYOND server returned data invalid.")
+        raise IOError("BYOND ответил неверной датой.")
 
     # Read response
     size = struct.unpack(">H", await reader.read(2))[0]
@@ -680,7 +680,7 @@ def byond_decode_packet(packet: bytes) -> Union[float, str]:
     elif packet[0] == 0x06:
         return packet[1:-1].decode("ascii")
 
-    raise NotImplementedError(f"Unknown BYOND data code: 0x{packet[0]:x}")
+    raise NotImplementedError(f"Неизвестный код BYOND: 0x{packet[0]:x}")
 
 
 class StatusException(Exception):
